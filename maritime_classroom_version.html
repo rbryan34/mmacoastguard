@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Maritime Classroom Study App</title>
+<meta name="theme-color" content="#0f766e">
+<style>
+:root {
+  --bg:#edf4fb; --card:#ffffff; --text:#13202d; --muted:#667085; --line:#d7e1eb;
+  --accent:#0f766e; --accent2:#2563eb; --good:#ecfdf5; --goodline:#86efac;
+  --bad:#fef2f2; --badline:#fca5a5; --warn:#fff7ed; --warnline:#fdba74;
+  --radius:20px; --shadow:0 10px 28px rgba(0,0,0,.06);
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  margin:0; font-family:Arial,Helvetica,sans-serif; color:var(--text);
+  background:linear-gradient(180deg,#eef4fb 0%,#f8fafc 100%);
+}
+.app {
+  max-width:680px; margin:0 auto;
+  padding:max(12px, env(safe-area-inset-top)) 12px max(24px, env(safe-area-inset-bottom));
+}
+.card {
+  background:var(--card); border:1px solid var(--line); border-radius:var(--radius);
+  padding:16px; margin-bottom:14px; box-shadow:var(--shadow);
+}
+h1,h2,h3 { margin:0 0 10px; }
+p { margin:0 0 10px; line-height:1.45; }
+.small { font-size:12px; color:var(--muted); }
+.muted { color:var(--muted); }
+.hidden { display:none; }
+.pill {
+  display:inline-block; padding:7px 10px; border-radius:999px; background:#ecfeff;
+  border:1px solid #bae6fd; color:#155e75; font-size:12px; margin:0 6px 6px 0;
+}
+.stack > * + * { margin-top:12px; }
+.row { display:flex; gap:10px; flex-wrap:wrap; }
+.topline { display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; }
+label { display:block; margin-bottom:6px; font-weight:700; font-size:15px; }
+select,input[type=text] {
+  width:100%; padding:14px; border:1px solid var(--line); border-radius:16px;
+  font-size:16px; background:#fff;
+}
+.btn {
+  width:100%; border:0; border-radius:18px; padding:15px 16px;
+  font-size:18px; font-weight:700; cursor:pointer;
+}
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-secondary { background:var(--accent2); color:#fff; }
+.btn-light { background:#eef2ff; color:#1e3a8a; }
+.btn-soft { background:#f3f4f6; color:#111827; }
+.btn-warn { background:var(--warn); color:#9a3412; }
+.btn-row { display:grid; grid-template-columns:1fr; gap:10px; }
+.grid2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.grid3 { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+.stat {
+  background:#f8fafc; border:1px solid var(--line); border-radius:16px; padding:14px;
+}
+.num { font-size:28px; font-weight:800; }
+.progress {
+  width:100%; height:12px; background:#e5e7eb; border-radius:999px; overflow:hidden;
+  margin:12px 0 16px;
+}
+.progress > div {
+  height:100%; width:0%; background:linear-gradient(90deg,var(--accent),var(--accent2));
+}
+.question { font-size:28px; line-height:1.28; margin:8px 0 18px; }
+.option {
+  display:block; width:100%; text-align:left; padding:18px 16px; margin-bottom:12px;
+  border:1px solid var(--line); border-radius:18px; background:#fff; font-size:18px;
+  line-height:1.35; cursor:pointer;
+}
+.option.correct { background:var(--good); border-color:var(--goodline); }
+.option.incorrect { background:var(--bad); border-color:var(--badline); }
+.feedback {
+  border-radius:18px; padding:14px 16px; margin-top:12px; line-height:1.5;
+  border:1px solid var(--line);
+}
+.good { background:var(--good); border-color:var(--goodline); }
+.bad { background:var(--bad); border-color:var(--badline); }
+.warn { background:var(--warn); border-color:var(--warnline); }
+.bar {
+  height:10px; background:#e5e7eb; border-radius:999px; overflow:hidden; margin-top:6px;
+}
+.bar > div { height:100%; background:linear-gradient(90deg,#22c55e,#2563eb); }
+.review-item {
+  border:1px solid var(--line); border-radius:16px; padding:12px; margin-bottom:10px; background:#fbfdff;
+}
+.section.hidden { display:none; }
+.bottom-nav {
+  position:sticky; bottom:max(8px, env(safe-area-inset-bottom)); background:rgba(248,250,252,.94);
+  backdrop-filter:blur(8px); border-radius:20px; padding:8px; margin-top:10px;
+}
+.nav-grid { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px; }
+.tab {
+  border:0; border-radius:14px; padding:12px 10px; background:#fff; font-weight:700; font-size:14px;
+}
+.tab.active { background:#dbeafe; color:#1d4ed8; }
+.badge { display:inline-block; padding:4px 8px; border-radius:999px; background:#f1f5f9; font-size:12px; }
+.student-chip {
+  display:inline-block; padding:8px 10px; border-radius:999px; background:#eef2ff; color:#1e3a8a;
+  margin:0 6px 6px 0; font-size:13px; cursor:pointer;
+}
+table {
+  width:100%; border-collapse:collapse; font-size:14px;
+}
+th, td {
+  text-align:left; padding:10px 8px; border-bottom:1px solid var(--line); vertical-align:top;
+}
+.name-box {
+  font-size:22px; font-weight:700; padding:14px 16px; border-radius:18px; background:#f8fafc;
+  border:1px solid var(--line);
+}
+@media (max-width:640px) {
+  .grid2, .grid3 { grid-template-columns:1fr; }
+  .question { font-size:26px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <div id="studentSection" class="section">
+    <div class="card">
+      <h1>⚓ Maritime Classroom Study App</h1>
+      <p class="muted">Built for 20+ students. Each student types a name and gets their own saved progress, missed questions, stats, and weak areas.</p>
+      <div>
+        <span class="pill">Steam 50</span>
+        <span class="pill">Motors 50</span>
+        <span class="pill">Electrical 50</span>
+        <span class="pill">Safety 50</span>
+        <span class="pill">Classroom Version</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Student Sign In</h2>
+      <div class="stack">
+        <div>
+          <label for="studentName">Enter student name</label>
+          <input type="text" id="studentName" placeholder="Example: Elijah Smith">
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="signInBtn">Continue</button>
+        </div>
+        <p class="small">Names are saved on this device. Use the same name each time.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Recent Students</h2>
+      <div id="recentStudents" class="small muted">No students yet.</div>
+    </div>
+  </div>
+
+  <div id="homeSection" class="section hidden">
+    <div class="card">
+      <div class="topline">
+        <div>
+          <h1>Student Home</h1>
+          <p class="muted">Current student:</p>
+          <div class="name-box" id="currentStudentBox"></div>
+        </div>
+        <div class="row" style="align-items:flex-start;">
+          <button class="btn btn-soft" style="width:auto;padding:12px 14px;font-size:15px;" id="switchStudentBtn">Switch Student</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Quick Start</h2>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="quickStudyBtn">Study Mode</button>
+        <button class="btn btn-secondary" id="quickExamBtn">Exam Mode</button>
+        <button class="btn btn-light" id="quickMissedBtn">Review Missed</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Custom Session</h2>
+      <div class="stack">
+        <div>
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="study">Study Mode</option>
+            <option value="exam">Exam Mode</option>
+            <option value="flash">Flashcards</option>
+          </select>
+        </div>
+        <div>
+          <label for="category">Category</label>
+          <select id="category">
+            <option value="mixed">Mixed categories</option>
+            <option value="Steam">Steam only</option>
+            <option value="Motors">Motors only</option>
+            <option value="Electrical">Electrical only</option>
+            <option value="Safety">Safety only</option>
+            <option value="wrong">Missed questions only</option>
+            <option value="weakest">Weakest category</option>
+          </select>
+        </div>
+        <div class="grid2">
+          <div>
+            <label for="count">Question count</label>
+            <select id="count">
+              <option>10</option>
+              <option selected>20</option>
+              <option>25</option>
+              <option>50</option>
+              <option>75</option>
+              <option>100</option>
+            </select>
+          </div>
+          <div>
+            <label for="timer">Timer</label>
+            <select id="timer">
+              <option value="0">No timer</option>
+              <option value="300">5 minutes</option>
+              <option value="600">10 minutes</option>
+              <option value="900" selected>15 minutes</option>
+              <option value="1800">30 minutes</option>
+              <option value="3600">60 minutes</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="startBtn">Start Session</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card hidden" id="resultCard"></div>
+  </div>
+
+  <div id="quizSection" class="section hidden">
+    <div class="card">
+      <div class="topline">
+        <div>
+          <span class="pill" id="sessionModePill"></span>
+          <span class="pill" id="sessionCategoryPill"></span>
+        </div>
+        <div>
+          <span class="pill" id="positionText">Q 1 / 1</span>
+          <span class="pill" id="timerText">--:--</span>
+        </div>
+      </div>
+      <div class="progress"><div id="progressFill"></div></div>
+      <div class="question" id="questionText"></div>
+      <div id="optionsWrap"></div>
+      <div id="feedbackWrap"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary hidden" id="nextBtn">Next</button>
+        <button class="btn btn-light hidden" id="flipBtn">Flip Card</button>
+        <button class="btn btn-soft" id="quitBtn">Quit Session</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="progressSection" class="section hidden">
+    <div class="card">
+      <h2>Student Progress</h2>
+      <div class="grid3">
+        <div class="stat"><div class="muted">Answered</div><div class="num" id="statAnswered">0</div></div>
+        <div class="stat"><div class="muted">Accuracy</div><div class="num" id="statAccuracy">0%</div></div>
+        <div class="stat"><div class="muted">Missed Saved</div><div class="num" id="statMissed">0</div></div>
+      </div>
+      <p class="small" id="dashboardHint"></p>
+    </div>
+
+    <div class="card">
+      <h2>Category Performance</h2>
+      <div id="categoryBars"></div>
+    </div>
+  </div>
+
+  <div id="teacherSection" class="section hidden">
+    <div class="card">
+      <h2>Teacher Dashboard</h2>
+      <p class="muted">See all students on this device, their accuracy, total answered, and weakest category.</p>
+    </div>
+
+    <div class="card">
+      <div class="topline">
+        <h3>Student Summary</h3>
+        <button class="btn btn-soft" style="width:auto;padding:12px 14px;font-size:15px;" id="exportClassBtn">Export Class Data</button>
+      </div>
+      <div id="teacherTableWrap"></div>
+    </div>
+  </div>
+
+  <div id="reviewSection" class="section hidden">
+    <div class="card">
+      <h2>Missed Questions</h2>
+      <input type="text" id="reviewSearch" placeholder="Search missed questions...">
+      <div id="missedReview" class="muted" style="margin-top:12px;">No missed questions yet.</div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-grid">
+      <button class="tab active" id="tabHome">Home</button>
+      <button class="tab" id="tabProgress">Progress</button>
+      <button class="tab" id="tabTeacher">Teacher</button>
+      <button class="tab" id="tabReview">Review</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTION_BANK = [{"category": "Motors", "question": "What is the correct order of a four-stroke diesel cycle?", "options": ["Intake, power, compression, exhaust", "Intake, compression, power, exhaust", "Compression, intake, power, exhaust", "Exhaust, intake, compression, power"], "correct": 1, "explanation": "A four-stroke diesel engine operates in the order intake, compression, power, then exhaust."}, {"category": "Motors", "question": "A diesel engine ignites fuel by:", "options": ["Spark ignition", "Compression heat", "Pilot flame", "Battery discharge"], "correct": 1, "explanation": "Diesel engines rely on heat created by compression to ignite the fuel."}, {"category": "Motors", "question": "The main purpose of engine lubrication is to:", "options": ["Increase friction", "Reduce wear and carry away heat", "Raise compression", "Cool the fuel"], "correct": 1, "explanation": "Lubrication reduces friction and wear while also helping remove heat from moving parts."}, {"category": "Motors", "question": "Black exhaust smoke from a diesel engine usually indicates:", "options": ["Too much air", "Incomplete combustion or excess fuel", "Low coolant temperature", "Low oil viscosity"], "correct": 1, "explanation": "Black smoke commonly means the engine is getting too much fuel or not enough air for complete combustion."}, {"category": "Motors", "question": "White smoke from a diesel engine can indicate:", "options": ["Cold cylinders or water in fuel", "Perfect combustion", "High oil pressure", "Overloaded alternator"], "correct": 0, "explanation": "White smoke often appears with cold combustion conditions or water contamination."}, {"category": "Motors", "question": "A turbocharger increases engine power mainly by:", "options": ["Cooling the lube oil", "Increasing intake air density", "Reducing piston speed", "Advancing injection timing"], "correct": 1, "explanation": "Turbochargers force more air into the cylinders so more fuel can be burned efficiently."}, {"category": "Motors", "question": "Low lube oil pressure should be treated as:", "options": ["Normal at all times", "A potentially serious engine condition", "Proof of proper lubrication", "A sign of overcooling only"], "correct": 1, "explanation": "Low lube oil pressure can quickly lead to bearing and engine damage."}, {"category": "Motors", "question": "The purpose of the governor is to:", "options": ["Control engine speed", "Cool the cylinders", "Filter the fuel", "Lubricate the camshaft"], "correct": 0, "explanation": "The governor regulates engine speed by controlling fuel delivery."}, {"category": "Motors", "question": "Detonation or knocking in a diesel may be caused by:", "options": ["Very late fuel injection", "Improper injection timing", "Too much cooling water", "Low battery voltage"], "correct": 1, "explanation": "Improper injection timing can cause rough combustion and knocking."}, {"category": "Motors", "question": "Piston rings primarily help:", "options": ["Open the valves", "Seal compression and control oil", "Drive the fuel pump", "Operate the injectors"], "correct": 1, "explanation": "Piston rings seal the combustion chamber and help manage oil on the cylinder wall."}, {"category": "Motors", "question": "A clogged fuel filter may cause:", "options": ["Loss of power", "Higher compression", "Improved atomization", "Higher coolant level"], "correct": 0, "explanation": "Restricted fuel flow often reduces power and may cause rough running."}, {"category": "Motors", "question": "The purpose of an intercooler is to:", "options": ["Heat the intake air", "Cool compressed intake air", "Cool lube oil only", "Increase exhaust temperature"], "correct": 1, "explanation": "Cooling compressed air increases its density and improves combustion."}, {"category": "Motors", "question": "A diesel engine runaway is usually caused by:", "options": ["Too little air", "Uncontrolled fuel or oil entering the engine", "Low jacket water pressure", "A clogged air filter"], "correct": 1, "explanation": "A runaway happens when the engine begins burning uncontrolled fuel or oil."}, {"category": "Motors", "question": "Crankcase oil that looks milky may indicate:", "options": ["Water contamination", "High sulfur fuel", "Low viscosity by design", "A charged battery"], "correct": 0, "explanation": "Milky oil commonly points to water contamination."}, {"category": "Motors", "question": "An exhaust valve that does not seat properly may cause:", "options": ["Loss of compression", "Higher battery voltage", "Improved starting", "Lower fuel temperature"], "correct": 0, "explanation": "A leaking exhaust valve reduces compression and efficiency."}, {"category": "Motors", "question": "In a two-stroke diesel, scavenging air is used to:", "options": ["Charge the batteries", "Remove exhaust gases and fill the cylinder with fresh air", "Heat the fuel", "Lubricate the liner"], "correct": 1, "explanation": "Scavenging clears exhaust gases and provides fresh air for the next combustion cycle."}, {"category": "Motors", "question": "A sudden rise in engine temperature with normal coolant level may indicate:", "options": ["Poor circulation or scale", "A full fuel tank", "A charged alternator", "Low exhaust backpressure"], "correct": 0, "explanation": "Restricted coolant flow or scale buildup can cause overheating."}, {"category": "Motors", "question": "The camshaft in a diesel engine is used to:", "options": ["Operate valves and sometimes fuel mechanisms", "Cool pistons", "Drive the propeller", "Measure lube oil pressure"], "correct": 0, "explanation": "The camshaft times valve opening and may also actuate injection components."}, {"category": "Motors", "question": "Cylinder lubrication on large marine engines helps prevent:", "options": ["Scuffing and wear", "Battery discharge", "Exhaust cooling", "Turbo lag"], "correct": 0, "explanation": "Cylinder lubrication reduces liner and ring wear."}, {"category": "Motors", "question": "If a diesel engine overspeeds, the first action is to:", "options": ["Ignore it briefly", "Cut fuel and use emergency stop if needed", "Add more cooling water", "Open indicator cocks"], "correct": 1, "explanation": "An overspeed is dangerous and requires immediate action to stop fuel and air as appropriate."}, {"category": "Motors", "question": "What is the function of a flywheel?", "options": ["Store rotational energy and smooth power pulses", "Increase fuel viscosity", "Cool the cylinder head", "Filter intake air"], "correct": 0, "explanation": "A flywheel smooths engine operation by storing rotational energy."}, {"category": "Motors", "question": "A cracked injector tip may cause:", "options": ["Poor spray pattern and rough combustion", "Higher compression", "Better fuel economy", "Stronger valve springs"], "correct": 0, "explanation": "Injector damage disrupts atomization and combustion quality."}, {"category": "Motors", "question": "Jacket water in a diesel engine is used to:", "options": ["Cool engine components", "Lubricate bearings", "Pressurize fuel", "Drive the governor"], "correct": 0, "explanation": "Jacket water removes heat from the engine block and heads."}, {"category": "Motors", "question": "Excessive blow-by is a sign of:", "options": ["Poor ring sealing", "A full sump", "Normal startup only", "Strong compression"], "correct": 0, "explanation": "Blow-by occurs when combustion gases leak past worn rings or liners."}, {"category": "Motors", "question": "A starting air system on a large diesel is used to:", "options": ["Purge the boiler", "Crank the engine for starting", "Cool the turbocharger", "Operate the bilge pump"], "correct": 1, "explanation": "Large marine diesels often use compressed air to start rotation."}, {"category": "Motors", "question": "Why is fuel atomization important?", "options": ["It improves mixing and combustion", "It decreases cylinder temperature only", "It reduces compression ratio", "It cools the governor"], "correct": 0, "explanation": "Better atomization creates finer droplets that burn more completely."}, {"category": "Motors", "question": "A clogged air filter on a diesel engine may result in:", "options": ["Richer combustion and smoke", "Higher oxygen supply", "Lower exhaust temperature only", "Increased scavenging"], "correct": 0, "explanation": "Restricted intake air can lead to incomplete combustion and smoke."}, {"category": "Motors", "question": "Main bearings support the:", "options": ["Crankshaft", "Cam followers", "Fuel rack", "Injector nozzle"], "correct": 0, "explanation": "Main bearings support and align the crankshaft."}, {"category": "Motors", "question": "A bent connecting rod can lead to:", "options": ["Abnormal piston travel", "Improved balance", "Higher oil pressure", "Cooler exhaust"], "correct": 0, "explanation": "Rod damage changes piston motion and can cause major engine problems."}, {"category": "Motors", "question": "The purpose of a fuel injector is to:", "options": ["Measure lube oil level", "Deliver and atomize fuel into the cylinder", "Cool the exhaust", "Operate the air compressor"], "correct": 1, "explanation": "Injectors meter and atomize fuel at the proper time."}, {"category": "Motors", "question": "Loss of compression in one cylinder may be caused by:", "options": ["Leaking valves or worn rings", "High alternator output", "Proper valve timing", "High sea water pressure"], "correct": 0, "explanation": "Compression loss usually traces to valves, rings, or head sealing issues."}, {"category": "Motors", "question": "What does the term top dead center mean?", "options": ["Highest piston position", "Lowest piston position", "Open exhaust valve", "Fuel shutoff point"], "correct": 0, "explanation": "Top dead center is the piston\u2019s highest point in the cylinder."}, {"category": "Motors", "question": "A diesel engine that hunts up and down in speed may have:", "options": ["Governor trouble", "Too much compression", "An overfilled expansion tank", "A perfect fuel setting"], "correct": 0, "explanation": "Speed hunting often points to governor or fuel control instability."}, {"category": "Motors", "question": "The function of a cylinder liner is to:", "options": ["Provide a wear surface for the piston and rings", "Drive the crankshaft", "Filter intake air", "Cool the injectors"], "correct": 0, "explanation": "The liner forms the cylinder wall and provides a replaceable wear surface."}, {"category": "Motors", "question": "The exhaust manifold collects:", "options": ["Exhaust gases from cylinders", "Cooling water from the block", "Lube oil from bearings", "Fuel from injectors"], "correct": 0, "explanation": "The manifold routes exhaust gases away from the cylinders."}, {"category": "Motors", "question": "A worn cam lobe may cause:", "options": ["Incorrect valve or injection timing", "Higher battery voltage", "Less crankshaft rotation", "Cooler lube oil"], "correct": 0, "explanation": "Cam wear reduces lift and changes timing."}, {"category": "Motors", "question": "Why must marine fuel systems be kept clean?", "options": ["To prevent wear and poor combustion", "To increase sea water flow", "To lower compression", "To polish the crankshaft"], "correct": 0, "explanation": "Contaminated fuel causes injector wear, clogging, and poor performance."}, {"category": "Motors", "question": "Scavenge fires are associated mainly with:", "options": ["Unburned oil and deposits in air spaces", "Battery overcharging", "Freshwater cooling only", "Anchor windlass faults"], "correct": 0, "explanation": "Oil and carbon buildup in scavenge spaces can ignite."}, {"category": "Motors", "question": "A stuck thermostat in the closed position may cause:", "options": ["Overheating", "Low compression", "Higher lube oil level", "Fuel dilution"], "correct": 0, "explanation": "No coolant circulation through the heat exchanger can lead to overheating."}, {"category": "Motors", "question": "What is the purpose of a relief valve in a lube oil system?", "options": ["Prevent excessive pressure", "Increase engine RPM", "Open the injectors", "Cool the sump"], "correct": 0, "explanation": "Relief valves protect the system from overpressure."}, {"category": "Motors", "question": "Excessive exhaust temperature on one cylinder may indicate:", "options": ["Injector or valve trouble", "A full battery", "Low sea state", "Too much jacket water"], "correct": 0, "explanation": "A hot cylinder often points to improper combustion or valve leakage."}, {"category": "Motors", "question": "The purpose of the crankcase is to:", "options": ["Enclose the crankshaft and contain lubricating oil", "Cool the exhaust gases", "Store starting air", "Support the propeller"], "correct": 0, "explanation": "The crankcase houses the crankshaft and lubricating oil."}, {"category": "Motors", "question": "A compression test helps evaluate:", "options": ["Cylinder sealing condition", "Battery electrolyte level", "Sea chest cleanliness", "Turbocharger oil grade"], "correct": 0, "explanation": "Compression testing indicates how well cylinders, valves, and rings are sealing."}, {"category": "Motors", "question": "Fuel knock differs from mechanical knock because it is related to:", "options": ["Combustion timing", "Bearing clearance only", "Propeller pitch only", "Alternator load"], "correct": 0, "explanation": "Fuel knock is caused by combustion events, often from bad timing or poor injection."}, {"category": "Motors", "question": "What is valve overlap?", "options": ["When intake and exhaust valves are open at nearly the same time", "When all valves are closed", "When the fuel pump stops", "When the injector leaks"], "correct": 0, "explanation": "Valve overlap improves breathing by briefly opening intake and exhaust valves together."}, {"category": "Motors", "question": "A seized piston is most likely associated with:", "options": ["Overheating or poor lubrication", "A charged battery", "Too much coolant", "Low exhaust temperature"], "correct": 0, "explanation": "Heat and lack of lubrication are common causes of piston seizure."}, {"category": "Motors", "question": "Why is proper bearing clearance important?", "options": ["To maintain oil film and avoid damage", "To increase smoke", "To lower compression intentionally", "To improve battery charging"], "correct": 0, "explanation": "Correct clearance allows a protective oil film to support the load."}, {"category": "Motors", "question": "A fuel rack on a diesel engine controls:", "options": ["Fuel quantity delivered", "Lube oil temperature", "Cooling water salinity", "Exhaust color"], "correct": 0, "explanation": "The fuel rack adjusts how much fuel is injected."}, {"category": "Motors", "question": "An engine indicator diagram is used to analyze:", "options": ["Combustion and cylinder performance", "Anchor chain wear", "Fire extinguisher pressure", "Navigation lights"], "correct": 0, "explanation": "Indicator diagrams help assess pressure and combustion inside the cylinder."}, {"category": "Motors", "question": "When securing a hot engine after operation, it is generally best to:", "options": ["Follow manufacturer shutdown procedure and monitor cool-down", "Drain the lube oil immediately", "Shut off cooling before fuel", "Open all relief valves"], "correct": 0, "explanation": "Controlled shutdown and cool-down help prevent thermal damage."}, {"category": "Electrical", "question": "Ohm\u2019s law is:", "options": ["P = VI", "V = IR", "R = P/I", "I = V + R"], "correct": 1, "explanation": "Ohm\u2019s law states that voltage equals current times resistance."}, {"category": "Electrical", "question": "Electrical power in watts is calculated by:", "options": ["P = VI", "P = I/R", "P = V-R", "P = R/I"], "correct": 0, "explanation": "Power equals voltage multiplied by current."}, {"category": "Electrical", "question": "In a series circuit, current is:", "options": ["Different in each part", "The same throughout", "Zero in the source", "Higher after each load"], "correct": 1, "explanation": "Series circuits have one path, so the same current flows through all components."}, {"category": "Electrical", "question": "In a parallel circuit, voltage across each branch is:", "options": ["Different in every branch", "The same", "Always zero", "Always doubled"], "correct": 1, "explanation": "Each branch in a parallel circuit sees the full source voltage."}, {"category": "Electrical", "question": "A fuse is designed to protect against:", "options": ["Excess current", "Low humidity", "Low resistance", "Reverse rotation"], "correct": 0, "explanation": "A fuse opens the circuit when current exceeds a safe value."}, {"category": "Electrical", "question": "A circuit breaker does what?", "options": ["Measures voltage", "Opens a circuit under fault conditions", "Stores energy", "Raises resistance"], "correct": 1, "explanation": "Circuit breakers interrupt current when a fault or overload occurs."}, {"category": "Electrical", "question": "A short circuit usually causes:", "options": ["Very high current", "No current at all", "Only low voltage", "Lower resistance in a safe way"], "correct": 0, "explanation": "Short circuits bypass normal loads and allow excessive current to flow."}, {"category": "Electrical", "question": "An open circuit results in:", "options": ["No current flow", "Unlimited current", "Higher frequency", "Lower grounding resistance"], "correct": 0, "explanation": "When a circuit is open, current cannot flow."}, {"category": "Electrical", "question": "Resistance is measured in:", "options": ["Watts", "Volts", "Ohms", "Amps per hour"], "correct": 2, "explanation": "The unit of electrical resistance is the ohm."}, {"category": "Electrical", "question": "Current is measured in:", "options": ["Volts", "Ohms", "Amperes", "Watts"], "correct": 2, "explanation": "Electrical current is measured in amperes or amps."}, {"category": "Electrical", "question": "Voltage is electrical:", "options": ["Pressure", "Friction", "Frequency only", "Heat"], "correct": 0, "explanation": "Voltage is commonly described as electrical pressure."}, {"category": "Electrical", "question": "A transformer works with:", "options": ["DC only", "AC only", "Static batteries only", "Hydraulic circuits"], "correct": 1, "explanation": "Transformers rely on changing magnetic fields, so they work with AC."}, {"category": "Electrical", "question": "The purpose of grounding is to:", "options": ["Provide a safe fault path", "Increase current draw", "Raise circuit voltage", "Boost frequency"], "correct": 0, "explanation": "Grounding helps direct fault current safely and reduces shock hazards."}, {"category": "Electrical", "question": "A megger is commonly used to test:", "options": ["Insulation resistance", "Battery gravity", "Fuel pressure", "Bearing clearance"], "correct": 0, "explanation": "A megger checks the insulation quality of wiring and equipment."}, {"category": "Electrical", "question": "Alternating current differs from direct current because AC:", "options": ["Flows in one direction only", "Reverses direction periodically", "Has no voltage", "Cannot power motors"], "correct": 1, "explanation": "AC changes direction periodically; DC flows in one direction."}, {"category": "Electrical", "question": "Frequency is measured in:", "options": ["Volts", "Hertz", "Ohms", "Amp-hours"], "correct": 1, "explanation": "Frequency is measured in hertz, meaning cycles per second."}, {"category": "Electrical", "question": "A generator converts:", "options": ["Electrical energy to mechanical energy", "Mechanical energy to electrical energy", "Heat to pressure only", "Resistance to voltage"], "correct": 1, "explanation": "Generators use mechanical input to produce electrical output."}, {"category": "Electrical", "question": "An electric motor converts:", "options": ["Mechanical to electrical energy", "Electrical to mechanical energy", "Fuel to steam", "Pressure to resistance"], "correct": 1, "explanation": "Motors take electrical power and produce rotation."}, {"category": "Electrical", "question": "In a simple DC circuit, increasing resistance while voltage stays constant causes current to:", "options": ["Increase", "Decrease", "Stay infinite", "Become AC"], "correct": 1, "explanation": "With constant voltage, current decreases as resistance increases."}, {"category": "Electrical", "question": "The polarity of DC refers to:", "options": ["Positive and negative terminals", "Wire color only", "Circuit frequency", "Transformer ratio"], "correct": 0, "explanation": "DC circuits have fixed positive and negative polarity."}, {"category": "Electrical", "question": "A battery connected backwards may cause:", "options": ["Reverse polarity damage", "Better charging", "Lower resistance only", "No effect"], "correct": 0, "explanation": "Reverse polarity can damage equipment and circuits."}, {"category": "Electrical", "question": "The purpose of a relay is to:", "options": ["Allow a small control current to switch a larger load", "Store electrical power", "Lower voltage only", "Measure insulation"], "correct": 0, "explanation": "Relays use a control circuit to operate a separate power circuit."}, {"category": "Electrical", "question": "An overloaded motor may draw:", "options": ["Less current than normal", "More current than normal", "No current", "Only DC current"], "correct": 1, "explanation": "Overloaded motors usually draw excessive current and may overheat."}, {"category": "Electrical", "question": "Three-phase power is often used because it:", "options": ["Is less efficient", "Provides smoother motor operation", "Cannot run large motors", "Uses no grounding"], "correct": 1, "explanation": "Three-phase systems are efficient and provide smoother power to motors."}, {"category": "Electrical", "question": "A capacitor can be used to:", "options": ["Store electrical charge", "Measure salinity", "Increase fuel pressure", "Lubricate bearings"], "correct": 0, "explanation": "Capacitors store charge and are used in many circuits."}, {"category": "Electrical", "question": "A diode allows current to flow:", "options": ["In both directions equally", "In one direction mainly", "Only in AC", "Only in ground wires"], "correct": 1, "explanation": "Diodes are designed to conduct primarily one way."}, {"category": "Electrical", "question": "The purpose of insulation on a wire is to:", "options": ["Prevent unwanted current leakage and contact", "Increase voltage", "Act as a fuse", "Create magnetic fields"], "correct": 0, "explanation": "Insulation protects conductors and helps prevent shorts and shocks."}, {"category": "Electrical", "question": "A multimeter can typically measure:", "options": ["Voltage, current, and resistance", "Only fuel pressure", "Only bearing wear", "Only horsepower"], "correct": 0, "explanation": "Multimeters are common electrical test tools for voltage, current, and resistance."}, {"category": "Electrical", "question": "Low insulation resistance may indicate:", "options": ["Moisture or damaged insulation", "A fully charged system", "Low amperage demand", "Proper grounding only"], "correct": 0, "explanation": "Moisture and insulation damage reduce insulation resistance."}, {"category": "Electrical", "question": "An ammeter is connected:", "options": ["In series", "In parallel always", "Across the battery only", "To ground only"], "correct": 0, "explanation": "Ammeters measure current and are placed in series with the load."}, {"category": "Electrical", "question": "A voltmeter is connected:", "options": ["In series", "In parallel", "Inside the fuse", "Across the propeller shaft"], "correct": 1, "explanation": "Voltmeters measure potential difference across two points, so they are connected in parallel."}, {"category": "Electrical", "question": "The neutral conductor in many systems is intended to:", "options": ["Carry return current under normal conditions", "Replace grounding", "Increase frequency", "Trip breakers directly"], "correct": 0, "explanation": "Neutral is a current-carrying return path in many systems."}, {"category": "Electrical", "question": "The protective ground conductor is intended to:", "options": ["Carry normal load current continuously", "Carry fault current safely", "Increase voltage", "Replace neutral"], "correct": 1, "explanation": "Protective grounding provides a safe path during faults, not normal operation."}, {"category": "Electrical", "question": "A dead battery cell may cause:", "options": ["Low overall battery voltage", "Higher than normal voltage", "Perfect charging", "Lower wire resistance"], "correct": 0, "explanation": "A bad cell lowers total battery voltage."}, {"category": "Electrical", "question": "Corroded battery terminals can cause:", "options": ["Voltage drop and poor starting", "Better current flow", "Higher capacity", "Zero resistance"], "correct": 0, "explanation": "Corrosion creates resistance and reduces current delivery."}, {"category": "Electrical", "question": "The purpose of an alternator regulator is to:", "options": ["Control output voltage", "Measure fuel flow", "Ground the hull", "Start the engine directly"], "correct": 0, "explanation": "The regulator keeps charging voltage within the proper range."}, {"category": "Electrical", "question": "What does continuity testing confirm?", "options": ["Whether a circuit path is complete", "Whether a battery is full", "Whether a motor is rotating", "Whether AC is present"], "correct": 0, "explanation": "Continuity testing checks that electricity can pass through a path."}, {"category": "Electrical", "question": "A GFCI device helps protect against:", "options": ["Ground-fault shock hazards", "Overfueling", "High steam pressure", "Low coolant level"], "correct": 0, "explanation": "Ground-fault devices detect leakage current and help protect people from shock."}, {"category": "Electrical", "question": "One horsepower is approximately:", "options": ["746 watts", "12 volts", "60 hertz", "1000 ohms"], "correct": 0, "explanation": "One horsepower is about 746 watts."}, {"category": "Electrical", "question": "The main danger of water in electrical equipment is:", "options": ["Shock and short circuits", "Lower engine RPM only", "Fuel dilution", "Higher insulation resistance"], "correct": 0, "explanation": "Water can create shock hazards and insulation breakdown."}, {"category": "Electrical", "question": "A starter motor usually requires:", "options": ["High current", "Low current only", "No battery", "AC input only"], "correct": 0, "explanation": "Starter motors draw high current to crank engines."}, {"category": "Electrical", "question": "Lockout/tagout procedures are used to:", "options": ["Prevent accidental energizing", "Increase voltage", "Test frequency", "Prime pumps"], "correct": 0, "explanation": "Lockout/tagout protects workers during servicing."}, {"category": "Electrical", "question": "A solenoid is an electrically operated:", "options": ["Coil device that can move a plunger", "Fuse", "Insulator", "Transformer oil"], "correct": 0, "explanation": "Solenoids use electromagnetic force to create motion."}, {"category": "Electrical", "question": "If voltage drops excessively at a motor during starting, a likely cause is:", "options": ["Weak supply or high resistance connections", "Low humidity", "Too much insulation", "Overcooling"], "correct": 0, "explanation": "Poor supply capacity or bad connections can cause major voltage drop."}, {"category": "Electrical", "question": "Arc flash hazards are associated with:", "options": ["Electrical fault energy release", "Coolant leaks", "Exhaust leaks", "Low-pressure steam"], "correct": 0, "explanation": "Arc flash can produce intense heat and pressure during electrical faults."}, {"category": "Electrical", "question": "What is induced voltage?", "options": ["Voltage created by a changing magnetic field", "Voltage from a dead battery", "Only mechanical pressure", "Ground current"], "correct": 0, "explanation": "Changing magnetic fields can induce voltage in a conductor."}, {"category": "Electrical", "question": "The main purpose of a ship\u2019s emergency generator is to:", "options": ["Provide backup power when main power fails", "Increase propeller speed", "Power the boiler feed pump only", "Replace the battery charger permanently"], "correct": 0, "explanation": "Emergency generators supply essential loads during a blackout."}, {"category": "Electrical", "question": "When replacing a fuse, the correct practice is to:", "options": ["Use the specified rating", "Install any larger fuse that fits", "Bypass it temporarily", "Use wire instead"], "correct": 0, "explanation": "A fuse must match the designed rating to protect the circuit."}, {"category": "Electrical", "question": "A winding fault in a motor may cause:", "options": ["Overheating and abnormal current draw", "Lower resistance in a safe way", "Improved efficiency", "No magnetic field"], "correct": 0, "explanation": "Damaged windings often overheat and draw abnormal current."}, {"category": "Electrical", "question": "The purpose of personal protective equipment in electrical work is to:", "options": ["Reduce injury risk from shock and arc hazards", "Increase current flow", "Replace safe procedures", "Lower frequency"], "correct": 0, "explanation": "PPE is an extra protection layer but does not replace safe work practices."}, {"category": "Steam", "question": "The main purpose of a boiler is to:", "options": ["Produce steam", "Store fuel", "Cool condensate", "Filter feedwater"], "correct": 0, "explanation": "A boiler uses heat to convert water into steam."}, {"category": "Steam", "question": "A safety valve on a boiler is used to:", "options": ["Prevent overpressure", "Increase firing rate", "Condense steam", "Raise water level"], "correct": 0, "explanation": "Safety valves open to protect the boiler from excessive pressure."}, {"category": "Steam", "question": "The steam cycle commonly used in power plants and steam ships is the:", "options": ["Rankine cycle", "Diesel cycle", "Brayton cycle", "Otto cycle"], "correct": 0, "explanation": "The Rankine cycle describes the basic steam power process."}, {"category": "Steam", "question": "A condenser in a steam plant:", "options": ["Turns exhaust steam back into water", "Raises steam pressure", "Burns fuel", "Measures salinity"], "correct": 0, "explanation": "Condensers convert exhaust steam into condensate for reuse."}, {"category": "Steam", "question": "Feedwater is:", "options": ["Water supplied to the boiler", "Fuel for the burner", "Cooling water only", "Condensed lube oil"], "correct": 0, "explanation": "Feedwater is the water entering the boiler."}, {"category": "Steam", "question": "The water level in a boiler is commonly checked by a:", "options": ["Gauge glass", "Pyrometer", "Ammeter", "Bilge alarm"], "correct": 0, "explanation": "The gauge glass gives a visual indication of boiler water level."}, {"category": "Steam", "question": "Low boiler water level is dangerous because it may:", "options": ["Overheat heating surfaces", "Increase feedwater purity", "Lower firing rate automatically", "Improve circulation"], "correct": 0, "explanation": "Low water can expose heating surfaces and cause severe damage."}, {"category": "Steam", "question": "Steam pressure generally increases when:", "options": ["Temperature rises in a confined system", "The burner is off", "The condenser is drained", "The gauge glass is blown down"], "correct": 0, "explanation": "In a closed system, increasing temperature generally increases pressure."}, {"category": "Steam", "question": "The purpose of a superheater is to:", "options": ["Raise steam temperature above saturation", "Lower feedwater temperature", "Remove salinity", "Increase boiler water level"], "correct": 0, "explanation": "Superheating dries and heats steam above the saturation point."}, {"category": "Steam", "question": "A boiler blowdown is performed to:", "options": ["Remove sediment and control dissolved solids", "Increase pressure", "Cool the furnace", "Prime the feed pump"], "correct": 0, "explanation": "Blowdown helps remove impurities from the boiler."}, {"category": "Steam", "question": "Priming in a boiler means:", "options": ["Water is carried over with steam", "The boiler has no pressure", "The burner is off", "Feedwater is too cold"], "correct": 0, "explanation": "Priming causes water droplets to be carried into the steam line."}, {"category": "Steam", "question": "Foaming in boiler water is often associated with:", "options": ["High dissolved solids or contamination", "Low steam pressure", "Too little water treatment", "A broken gauge glass only"], "correct": 0, "explanation": "Foaming is commonly caused by water contamination or high solids."}, {"category": "Steam", "question": "A steam trap is designed to:", "options": ["Remove condensate without losing much steam", "Increase steam pressure", "Cool the feedwater tank", "Measure draft"], "correct": 0, "explanation": "Steam traps discharge condensate while retaining useful steam."}, {"category": "Steam", "question": "The furnace of a boiler is where:", "options": ["Fuel is burned", "Condensate is stored", "Steam is dried", "Water is tested"], "correct": 0, "explanation": "Combustion takes place in the furnace."}, {"category": "Steam", "question": "The economizer is used to:", "options": ["Heat feedwater using waste heat", "Cool the stack", "Reduce water level", "Condense steam"], "correct": 0, "explanation": "Economizers improve efficiency by preheating feedwater."}, {"category": "Steam", "question": "A pressure gauge on a boiler indicates:", "options": ["Steam pressure", "Water salinity", "Fuel grade", "Stack draft only"], "correct": 0, "explanation": "Pressure gauges show the pressure inside the system."}, {"category": "Steam", "question": "A boiler that is forced too hard may suffer from:", "options": ["Carryover and overheating", "Battery loss", "Low insulation resistance", "Fuel polishing"], "correct": 0, "explanation": "Excess firing can create poor steam quality and overheating issues."}, {"category": "Steam", "question": "The purpose of the deaerator is to:", "options": ["Remove dissolved gases from feedwater", "Increase salinity", "Store fuel oil", "Raise stack temperature"], "correct": 0, "explanation": "Deaerators remove oxygen and other gases that promote corrosion."}, {"category": "Steam", "question": "Oxygen in boiler feedwater is undesirable because it causes:", "options": ["Corrosion", "Higher steam temperature", "Lower pressure", "Better conductivity"], "correct": 0, "explanation": "Oxygen promotes corrosion in boilers and condensate systems."}, {"category": "Steam", "question": "The function of the feed pump is to:", "options": ["Force water into the boiler", "Return steam to the turbine", "Raise furnace draft", "Open the safety valve"], "correct": 0, "explanation": "Feed pumps supply water to the boiler at sufficient pressure."}, {"category": "Steam", "question": "What is saturated steam?", "options": ["Steam at the temperature corresponding to its pressure", "Steam mixed with fuel", "Steam below boiling point", "Steam with no energy"], "correct": 0, "explanation": "Saturated steam exists at the boiling temperature for its pressure."}, {"category": "Steam", "question": "A boiler header is used to:", "options": ["Collect and distribute steam or water", "Measure salinity", "Support the propeller shaft", "Charge batteries"], "correct": 0, "explanation": "Headers gather flow from one part of the system and distribute it elsewhere."}, {"category": "Steam", "question": "Scale inside boiler tubes tends to:", "options": ["Reduce heat transfer and cause overheating", "Improve efficiency", "Lower pressure loss", "Increase condensate quality"], "correct": 0, "explanation": "Scale acts as insulation and can overheat metal surfaces."}, {"category": "Steam", "question": "The purpose of boiler water treatment is to:", "options": ["Control corrosion and scale", "Increase soot formation", "Lower firing rate", "Replace blowdown"], "correct": 0, "explanation": "Water treatment protects the boiler from corrosion, scale, and contamination."}, {"category": "Steam", "question": "A steam turbine is driven by:", "options": ["Expanding steam", "Compressed air only", "Cooling water flow", "Fuel injection"], "correct": 0, "explanation": "Steam turbines convert the energy of expanding steam into rotation."}, {"category": "Steam", "question": "The condenser creates a vacuum mainly to:", "options": ["Improve turbine efficiency", "Raise feedwater temperature only", "Increase boiler salinity", "Reduce circulation"], "correct": 0, "explanation": "Vacuum lowers exhaust pressure and improves energy extraction."}, {"category": "Steam", "question": "The hottest gases in a boiler generally pass through:", "options": ["Heating surfaces before going to the stack", "The condenser first", "The bilge", "The freshwater generator"], "correct": 0, "explanation": "Heat is transferred to boiler surfaces before gases leave the stack."}, {"category": "Steam", "question": "A soot blower is used to:", "options": ["Remove soot from heating surfaces", "Increase stack temperature", "Prime feed pumps", "Test salinity"], "correct": 0, "explanation": "Soot removal keeps heat transfer surfaces efficient."}, {"category": "Steam", "question": "When lighting off a boiler, a key safety step is to:", "options": ["Purge the furnace properly", "Close all vents permanently", "Overfill the boiler", "Shut the feed pump"], "correct": 0, "explanation": "Purging clears combustible gases and reduces explosion risk."}, {"category": "Steam", "question": "A sudden loss of boiler water level may indicate:", "options": ["A leak, priming, or faulty indication", "Improved circulation", "Higher feed rate only", "Lower firing rate only"], "correct": 0, "explanation": "Unexpected low level demands immediate investigation."}, {"category": "Steam", "question": "The purpose of a steam separator is to:", "options": ["Remove moisture from steam", "Raise feed pressure", "Store blowdown", "Heat fuel oil"], "correct": 0, "explanation": "Steam separators improve dryness by removing entrained water."}, {"category": "Steam", "question": "In general, dry steam is preferred because it:", "options": ["Improves efficiency and reduces water hammer/erosion", "Contains more dissolved solids", "Lowers turbine speed", "Causes more carryover"], "correct": 0, "explanation": "Dry steam performs better and protects downstream equipment."}, {"category": "Steam", "question": "Water hammer in steam lines is caused by:", "options": ["Condensate slugs moving at high speed", "Low battery voltage", "A cold furnace only", "Excess insulation"], "correct": 0, "explanation": "Water hammer can be violent and is caused by moving condensate."}, {"category": "Steam", "question": "The main reason to warm through steam lines slowly is to:", "options": ["Prevent thermal stress and water hammer", "Increase salinity", "Reduce condensate removal", "Lower pressure"], "correct": 0, "explanation": "Slow warming protects piping and equipment."}, {"category": "Steam", "question": "A manhole on a boiler is used for:", "options": ["Inspection and maintenance access", "Increasing draft", "Measuring steam flow", "Controlling burner timing"], "correct": 0, "explanation": "Manholes allow personnel access for inspection and repair."}, {"category": "Steam", "question": "The term evaporation rate refers to:", "options": ["How much water is converted to steam", "How fast fuel burns only", "How quickly pressure falls", "How fast condensate cools"], "correct": 0, "explanation": "Evaporation rate measures steam generation."}, {"category": "Steam", "question": "A burner atomizes fuel in order to:", "options": ["Improve combustion", "Lower steam pressure", "Reduce feedwater flow", "Increase blowdown"], "correct": 0, "explanation": "Atomization improves mixing of fuel and air."}, {"category": "Steam", "question": "The function of draft in a boiler furnace is to:", "options": ["Supply and move combustion air/gases", "Condense steam", "Lubricate fans", "Increase water level"], "correct": 0, "explanation": "Draft controls airflow and flue gas movement."}, {"category": "Steam", "question": "Natural circulation in a boiler depends on:", "options": ["Density differences between hot and cooler water", "Battery power", "Vacuum only", "Fuel viscosity"], "correct": 0, "explanation": "Hotter water/steam rises while cooler water falls, creating circulation."}, {"category": "Steam", "question": "A refractory lining is used to:", "options": ["Protect boiler structure and retain heat", "Increase salinity", "Polish feedwater", "Cool the furnace wall"], "correct": 0, "explanation": "Refractory resists heat and improves furnace efficiency."}, {"category": "Steam", "question": "A feed check valve prevents:", "options": ["Backflow from the boiler", "Steam superheating", "Low salinity", "Soot accumulation"], "correct": 0, "explanation": "Feed check valves allow water into the boiler but stop reverse flow."}, {"category": "Steam", "question": "Why are boiler safety devices tested periodically?", "options": ["To verify they operate correctly", "To increase steam demand", "To lower water level", "To avoid blowdown"], "correct": 0, "explanation": "Testing confirms safety devices will function in emergencies."}, {"category": "Steam", "question": "The term latent heat refers to:", "options": ["Heat added during change of state without temperature rise", "Sensible temperature only", "Heat lost to the stack only", "Heat of friction"], "correct": 0, "explanation": "Latent heat is absorbed during phase change, such as boiling."}, {"category": "Steam", "question": "The term sensible heat refers to:", "options": ["Heat that changes temperature", "Heat only in superheated steam", "Condensate return", "Stored furnace heat"], "correct": 0, "explanation": "Sensible heat is associated with a measurable temperature change."}, {"category": "Steam", "question": "If a boiler water column or gauge glass is suspected faulty, the operator should:", "options": ["Verify level using proper procedure immediately", "Ignore it until shutdown", "Increase firing rate", "Drain the boiler"], "correct": 0, "explanation": "Uncertain water level is hazardous and must be checked right away."}, {"category": "Steam", "question": "Carryover from a boiler can damage:", "options": ["Turbines, valves, and lines", "Only the feed tank", "Only electrical panels", "Only the condenser hotwell"], "correct": 0, "explanation": "Water and contaminants carried with steam can damage downstream equipment."}, {"category": "Steam", "question": "The hotwell is associated with:", "options": ["Collecting condensate from the condenser", "Storing fuel oil", "Holding lube oil", "Charging batteries"], "correct": 0, "explanation": "The hotwell stores warm condensate before it is reused."}, {"category": "Steam", "question": "A pressure-reducing valve is used to:", "options": ["Lower steam pressure to a controlled level", "Raise boiler pressure", "Increase water level", "Trip the burner"], "correct": 0, "explanation": "PRVs supply steam at a lower controlled pressure for certain services."}, {"category": "Steam", "question": "One common sign of poor combustion in a boiler furnace is:", "options": ["Smoke or soot formation", "Clear exhaust and stable flame", "Low steam temperature only", "High condensate quality"], "correct": 0, "explanation": "Smoke and soot often indicate incomplete combustion."}, {"category": "Steam", "question": "Before opening a boiler for maintenance, it must be:", "options": ["Cooled, isolated, depressurized, and made safe", "Pressurized slightly", "Kept under fire", "Left connected to the main"], "correct": 0, "explanation": "Boilers must be properly shut down, isolated, and made safe before entry or work."}, {"category": "Safety", "question": "Class A fires involve:", "options": ["Ordinary combustibles such as wood and paper", "Flammable liquids", "Electrical equipment", "Combustible metals"], "correct": 0, "explanation": "Class A covers ordinary combustible materials."}, {"category": "Safety", "question": "Class B fires involve:", "options": ["Flammable liquids", "Electrical panels only", "Galley grease only", "Combustible metals"], "correct": 0, "explanation": "Class B covers flammable liquids such as fuel and oil."}, {"category": "Safety", "question": "Class C fires involve:", "options": ["Energized electrical equipment", "Ordinary combustibles", "Combustible metals", "Radioactive material"], "correct": 0, "explanation": "Class C refers to energized electrical fires."}, {"category": "Safety", "question": "Before entering a confined space, you should:", "options": ["Test the atmosphere and follow permit procedures", "Just bring a flashlight", "Enter quickly before air changes", "Rely on smell alone"], "correct": 0, "explanation": "Atmospheric testing and permit controls are essential for confined spaces."}, {"category": "Safety", "question": "PPE stands for:", "options": ["Personal protective equipment", "Pressure protection element", "Primary power enclosure", "Portable pump equipment"], "correct": 0, "explanation": "PPE means personal protective equipment."}, {"category": "Safety", "question": "The first action upon discovering a fire is generally to:", "options": ["Raise the alarm", "Hide the extinguisher", "Open all doors", "Leave all machinery running"], "correct": 0, "explanation": "Alarm first so the vessel can respond immediately."}, {"category": "Safety", "question": "A lifeboat is intended for:", "options": ["Emergency evacuation", "Routine cargo transfer", "Fuel transfer", "Bilge pumping"], "correct": 0, "explanation": "Lifeboats are for abandoning ship and survival."}, {"category": "Safety", "question": "A muster list tells crew members:", "options": ["Their emergency duties and stations", "The weather forecast", "Cargo prices", "How to tune the radio"], "correct": 0, "explanation": "The muster list assigns emergency responsibilities."}, {"category": "Safety", "question": "A fire triangle consists of:", "options": ["Heat, fuel, and oxygen", "Steam, fuel, and water", "Shock, slip, and trip", "Alarm, extinguisher, and hose"], "correct": 0, "explanation": "Removing any side of the fire triangle helps extinguish a fire."}, {"category": "Safety", "question": "To fight a small Class B fire, a common extinguisher type is:", "options": ["Foam or dry chemical", "Water jet only", "Sand only", "CO2 never"], "correct": 0, "explanation": "Foam and dry chemical are common for flammable liquid fires."}, {"category": "Safety", "question": "Water should generally not be used on an energized electrical fire because it may:", "options": ["Increase shock hazard", "Lower temperature too quickly", "Reduce visibility only", "Cause rust later"], "correct": 0, "explanation": "Water can conduct electricity and increase shock risk."}, {"category": "Safety", "question": "A permit-required confined space may contain:", "options": ["Atmospheric and physical hazards", "Only fresh air", "No mechanical hazards", "Guaranteed oxygen"], "correct": 0, "explanation": "Confined spaces can have toxic, oxygen, engulfment, and mechanical hazards."}, {"category": "Safety", "question": "Lockout/tagout is used to:", "options": ["Prevent accidental startup or energizing", "Increase equipment speed", "Improve fuel atomization", "Open relief valves"], "correct": 0, "explanation": "LOTO protects workers during maintenance."}, {"category": "Safety", "question": "When lifting with a crane or hoist, never:", "options": ["Stand under a suspended load", "Use hand signals", "Inspect rigging", "Know the load weight"], "correct": 0, "explanation": "A suspended load can fall or shift without warning."}, {"category": "Safety", "question": "A safety data sheet provides information about:", "options": ["Chemical hazards and handling", "Only cargo weights", "Weather routing", "Navigation lights"], "correct": 0, "explanation": "SDS documents explain hazards, PPE, and emergency response for chemicals."}, {"category": "Safety", "question": "Good housekeeping helps prevent:", "options": ["Trips, slips, and fire hazards", "Only theft", "Compass error", "Radio interference"], "correct": 0, "explanation": "Clean, orderly spaces reduce many common accidents."}, {"category": "Safety", "question": "Hearing protection should be worn when:", "options": ["Noise levels are hazardous", "The weather is calm", "The engine is off", "Reading manuals"], "correct": 0, "explanation": "High noise exposure can damage hearing."}, {"category": "Safety", "question": "The purpose of a hard hat is to:", "options": ["Protect against impact to the head", "Improve hearing", "Prevent motion sickness", "Float in water"], "correct": 0, "explanation": "Hard hats help protect workers from overhead and impact hazards."}, {"category": "Safety", "question": "If someone receives an electrical shock, the first priority is to:", "options": ["Make the scene safe and disconnect power if possible", "Grab them immediately with bare hands", "Throw water on the circuit", "Ignore the source"], "correct": 0, "explanation": "Protect yourself first and de-energize the hazard if possible."}, {"category": "Safety", "question": "A fire watch is commonly required during:", "options": ["Hot work such as welding or cutting", "Routine painting only", "Changing filters", "Chart corrections"], "correct": 0, "explanation": "Hot work can ignite nearby materials, so a fire watch is needed."}, {"category": "Safety", "question": "The purpose of ventilation in enclosed work areas is to:", "options": ["Remove harmful vapors and improve air quality", "Increase humidity only", "Raise fuel pressure", "Replace permits"], "correct": 0, "explanation": "Ventilation reduces inhalation and explosion risks."}, {"category": "Safety", "question": "A slip hazard is increased by:", "options": ["Oil on deck", "Proper nonskid", "Good drainage", "Adequate lighting"], "correct": 0, "explanation": "Oil and other contaminants make surfaces slippery."}, {"category": "Safety", "question": "A trip hazard is commonly caused by:", "options": ["Loose gear and trailing lines", "Clear walkways", "Good stowage", "Marked steps"], "correct": 0, "explanation": "Poor housekeeping often creates trip hazards."}, {"category": "Safety", "question": "Emergency escape breathing devices are used for:", "options": ["Short-term escape from hazardous atmospheres", "Routine welding", "Lowering anchors", "Starting engines"], "correct": 0, "explanation": "EEBDs are for escape, not prolonged work."}, {"category": "Safety", "question": "A self-contained breathing apparatus provides:", "options": ["Breathable air from a carried cylinder", "Steam", "Filtered seawater", "Only eye protection"], "correct": 0, "explanation": "SCBA lets a person breathe safely in smoke or toxic atmospheres."}, {"category": "Safety", "question": "Why should oily rags be stored properly?", "options": ["They can create fire risk", "They sharpen tools", "They raise humidity", "They reduce corrosion on decks"], "correct": 0, "explanation": "Improperly stored oily rags can self-heat and ignite."}, {"category": "Safety", "question": "The purpose of a guard on machinery is to:", "options": ["Prevent contact with moving parts", "Increase rotation speed", "Add lubrication", "Reduce voltage"], "correct": 0, "explanation": "Machine guards reduce entanglement and contact hazards."}, {"category": "Safety", "question": "Before using a portable ladder, you should:", "options": ["Inspect it for defects", "Paint it", "Shorten it", "Oil the steps"], "correct": 0, "explanation": "Inspecting ladders helps prevent falls."}, {"category": "Safety", "question": "The best response to a chemical splash in the eye is typically to:", "options": ["Use emergency eyewash immediately", "Rub the eye", "Cover it and keep working", "Wait until break"], "correct": 0, "explanation": "Immediate flushing limits injury."}, {"category": "Safety", "question": "A man-overboard drill prepares the crew to:", "options": ["Recover a person in the water", "Lower cargo faster", "Fight electrical fires", "Prime pumps"], "correct": 0, "explanation": "These drills improve recovery response time and coordination."}, {"category": "Safety", "question": "A watertight door should be kept closed when required to:", "options": ["Maintain vessel integrity", "Improve ventilation", "Lower fuel consumption", "Increase visibility"], "correct": 0, "explanation": "Watertight boundaries slow flooding and preserve stability."}, {"category": "Safety", "question": "The purpose of a safety harness is to:", "options": ["Protect against falls when working aloft", "Increase grip strength", "Carry tools only", "Reduce heat stress"], "correct": 0, "explanation": "Harnesses are fall-protection equipment."}, {"category": "Safety", "question": "One reason to avoid loose clothing near machinery is that it can:", "options": ["Become entangled", "Improve cooling", "Reduce noise", "Act as insulation"], "correct": 0, "explanation": "Loose clothing can catch in rotating or moving equipment."}, {"category": "Safety", "question": "A near miss should be reported because it:", "options": ["Helps prevent future accidents", "Means nothing happened", "Only matters after injury", "Delays work unnecessarily"], "correct": 0, "explanation": "Near-miss reporting helps fix hazards before someone gets hurt."}, {"category": "Safety", "question": "Fatigue is a safety concern because it can:", "options": ["Reduce alertness and judgment", "Improve reaction time", "Increase visibility", "Lower stress automatically"], "correct": 0, "explanation": "Fatigue contributes to errors and accidents."}, {"category": "Safety", "question": "The safest way to carry out maintenance on pressurized equipment is to:", "options": ["Isolate and relieve pressure first", "Tap the gauge lightly", "Open it slowly under pressure", "Stand directly in front of flanges"], "correct": 0, "explanation": "Stored pressure can release violently if not isolated first."}, {"category": "Safety", "question": "A fire boundary is used to:", "options": ["Slow the spread of fire", "Improve radio range", "Increase fuel transfer rate", "Cool the galley"], "correct": 0, "explanation": "Fire boundaries compartmentalize and contain fire."}, {"category": "Safety", "question": "The PASS method for extinguisher use means:", "options": ["Pull, aim, squeeze, sweep", "Push, alarm, spray, stop", "Pull, alarm, shut, signal", "Point, assess, spray, seal"], "correct": 0, "explanation": "PASS is the standard quick reminder for extinguisher use."}, {"category": "Safety", "question": "If you smell fuel vapor in an enclosed area, you should:", "options": ["Stop ignition sources and ventilate/report", "Turn on any electric heater", "Ignore it", "Light a match"], "correct": 0, "explanation": "Fuel vapors can explode, so eliminate ignition sources and report immediately."}, {"category": "Safety", "question": "A confined space attendant is responsible for:", "options": ["Monitoring entry and maintaining communication", "Doing all internal work alone", "Closing all alarms", "Bypassing permits"], "correct": 0, "explanation": "Attendants help protect entrants and summon rescue if needed."}, {"category": "Safety", "question": "The purpose of drills is to:", "options": ["Build effective emergency response habits", "Satisfy paperwork only", "Reduce maintenance", "Increase cargo speed"], "correct": 0, "explanation": "Practice improves speed, coordination, and confidence in emergencies."}, {"category": "Safety", "question": "When handling lines under tension, stand:", "options": ["Clear of snap-back zones", "Inside the bight", "Directly over the line", "On top of the bitt"], "correct": 0, "explanation": "A parted line can recoil violently through the snap-back zone."}, {"category": "Safety", "question": "A Job Safety Analysis is used to:", "options": ["Identify hazards before starting a task", "Replace all PPE", "Increase work speed at any cost", "Eliminate supervision"], "correct": 0, "explanation": "JSA breaks a task into steps and identifies controls for each hazard."}, {"category": "Safety", "question": "If a coworker shows signs of heat exhaustion, one proper response is to:", "options": ["Move them to a cooler place and seek assistance", "Make them keep working", "Give heavy clothing", "Ignore symptoms"], "correct": 0, "explanation": "Cooling and prompt attention are important for heat illness."}, {"category": "Safety", "question": "An enclosed space with low oxygen can:", "options": ["Cause unconsciousness or death", "Improve combustion only", "Be detected reliably by smell", "Be safe if briefly entered"], "correct": 0, "explanation": "Low oxygen atmospheres are immediately dangerous to life and health."}, {"category": "Safety", "question": "Why should tools be secured when working aloft?", "options": ["To prevent dropped-object injuries", "To improve sharpening", "To increase lifting power", "To reduce humidity"], "correct": 0, "explanation": "Dropped tools can seriously injure people below."}, {"category": "Safety", "question": "A rescue plan is important before hazardous work because:", "options": ["Emergencies must be anticipated in advance", "It is never used", "It slows entry only", "It replaces communication"], "correct": 0, "explanation": "Rescue plans ensure people know what to do before trouble starts."}, {"category": "Safety", "question": "The best extinguisher choice depends on:", "options": ["The class of fire and the hazard present", "The paint color", "Who arrives first", "The outside temperature only"], "correct": 0, "explanation": "Different classes of fire require different suppression methods."}, {"category": "Safety", "question": "One advantage of routine safety inspections is that they:", "options": ["Find hazards before incidents occur", "Increase noise", "Reduce training value", "Eliminate all risk permanently"], "correct": 0, "explanation": "Inspections help identify and correct unsafe conditions early."}, {"category": "Safety", "question": "Safe manual lifting includes:", "options": ["Using legs, keeping load close, and avoiding twists", "Lifting with a bent back", "Jerking quickly", "Keeping feet together"], "correct": 0, "explanation": "Proper body mechanics reduce strain and injury."}];
+const STORAGE_KEY = "maritimeClassroomApp_v1";
+
+let state = {
+  currentStudent: null,
+  students: {},
+  recentStudents: [],
+  session: null
+};
+
+function $(id){ return document.getElementById(id); }
+
+function emptyStudentRecord() {
+  return {
+    answered: 0,
+    correct: 0,
+    quizzes: 0,
+    byCategory: {
+      Steam: {answered:0, correct:0},
+      Motors: {answered:0, correct:0},
+      Electrical: {answered:0, correct:0},
+      Safety: {answered:0, correct:0}
+    },
+    missedIds: [],
+    history: []
+  };
+}
+
+function loadState() {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return;
+  try {
+    const parsed = JSON.parse(raw);
+    if (parsed && parsed.students) state = parsed;
+  } catch (e) {}
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function normalizeName(name) {
+  return name.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+function displayName(name) {
+  return name.trim().replace(/\s+/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function getCurrentRecord() {
+  if (!state.currentStudent) return null;
+  return state.students[state.currentStudent];
+}
+
+function allQuestions() {
+  return QUESTION_BANK.map((q, idx) => ({ ...q, _id: idx }));
+}
+
+function weakestCategory(record) {
+  const cats = ["Steam","Motors","Electrical","Safety"];
+  let weak = cats[0];
+  let score = Infinity;
+  cats.forEach(cat => {
+    const s = record.byCategory[cat];
+    const pct = s.answered ? (s.correct / s.answered) * 100 : 0;
+    if (pct < score) {
+      score = pct;
+      weak = cat;
+    }
+  });
+  return weak;
+}
+
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function formatTime(sec) {
+  sec = Math.max(0, sec);
+  const m = String(Math.floor(sec / 60)).padStart(2, "0");
+  const s = String(sec % 60).padStart(2, "0");
+  return m + ":" + s;
+}
+
+function showSection(name) {
+  ["studentSection","homeSection","quizSection","progressSection","teacherSection","reviewSection"].forEach(id => $(id).classList.add("hidden"));
+  ["tabHome","tabProgress","tabTeacher","tabReview"].forEach(id => $(id).classList.remove("active"));
+
+  if (!state.currentStudent) {
+    $("studentSection").classList.remove("hidden");
+    return;
+  }
+
+  if (name === "home") { $("homeSection").classList.remove("hidden"); $("tabHome").classList.add("active"); }
+  if (name === "quiz") { $("quizSection").classList.remove("hidden"); }
+  if (name === "progress") { $("progressSection").classList.remove("hidden"); $("tabProgress").classList.add("active"); }
+  if (name === "teacher") { $("teacherSection").classList.remove("hidden"); $("tabTeacher").classList.add("active"); }
+  if (name === "review") { $("reviewSection").classList.remove("hidden"); $("tabReview").classList.add("active"); }
+
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function signInStudent() {
+  const raw = $("studentName").value;
+  const norm = normalizeName(raw);
+  if (!norm) {
+    alert("Please enter a student name.");
+    return;
+  }
+  if (!state.students[norm]) {
+    state.students[norm] = emptyStudentRecord();
+  }
+  state.currentStudent = norm;
+  state.recentStudents = [norm].concat(state.recentStudents.filter(n => n !== norm)).slice(0, 25);
+  saveState();
+  $("studentName").value = "";
+  renderAll();
+  showSection("home");
+}
+
+function switchStudent() {
+  state.currentStudent = null;
+  state.session = null;
+  saveState();
+  renderAll();
+  showSection("student");
+}
+
+function renderRecentStudents() {
+  const box = $("recentStudents");
+  if (!state.recentStudents.length) {
+    box.textContent = "No students yet.";
+    return;
+  }
+  box.innerHTML = state.recentStudents.map(name => {
+    return '<span class="student-chip" data-name="' + escapeHtml(name) + '">' + escapeHtml(displayName(name)) + '</span>';
+  }).join("");
+  Array.from(box.querySelectorAll(".student-chip")).forEach(el => {
+    el.addEventListener("click", () => {
+      state.currentStudent = el.getAttribute("data-name");
+      saveState();
+      renderAll();
+      showSection("home");
+    });
+  });
+}
+
+function poolFor(record, categoryMode) {
+  let pool = allQuestions();
+  const missedSet = new Set(record.missedIds);
+
+  if (categoryMode === "wrong") {
+    pool = pool.filter(q => missedSet.has(q._id));
+  } else if (categoryMode === "weakest") {
+    pool = pool.filter(q => q.category === weakestCategory(record));
+  } else if (categoryMode !== "mixed") {
+    pool = pool.filter(q => q.category === categoryMode);
+  }
+  return shuffle(pool);
+}
+
+function prepQuestions(raw, count) {
+  return raw.slice(0, count).map(q => {
+    const pairs = q.options.map((opt, idx) => ({ text: opt, correct: idx === q.correct }));
+    const reordered = shuffle(pairs);
+    return {
+      ...q,
+      optionsView: reordered.map(x => x.text),
+      correctView: reordered.findIndex(x => x.correct)
+    };
+  });
+}
+
+function startSession(modeOverride, categoryOverride) {
+  const record = getCurrentRecord();
+  if (!record) return;
+
+  const mode = modeOverride || $("mode").value;
+  const category = categoryOverride || $("category").value;
+  const count = parseInt($("count").value, 10);
+  const timer = parseInt($("timer").value, 10);
+
+  let pool = poolFor(record, category);
+  if (!pool.length) {
+    alert(category === "wrong" ? "No missed questions saved for this student yet." : "No questions available for that setup.");
+    return;
+  }
+
+  state.session = {
+    mode,
+    category,
+    questions: prepQuestions(pool, Math.min(count, pool.length)),
+    index: 0,
+    score: 0,
+    remaining: mode === "flash" ? 0 : timer,
+    timer: mode === "flash" ? 0 : timer,
+    timerId: null,
+    locked: false,
+    answers: [],
+    startedAt: Date.now(),
+    flashFront: true
+  };
+
+  $("resultCard").classList.add("hidden");
+  showSection("quiz");
+
+  if (mode === "flash") {
+    $("flipBtn").classList.remove("hidden");
+    $("nextBtn").classList.remove("hidden");
+    $("nextBtn").textContent = "Next Card";
+    $("timerText").textContent = "Flashcards";
+    renderFlashcard();
+    return;
+  }
+
+  $("flipBtn").classList.add("hidden");
+  $("nextBtn").classList.add("hidden");
+
+  if (timer > 0) {
+    $("timerText").textContent = formatTime(timer);
+    state.session.timerId = setInterval(() => {
+      state.session.remaining -= 1;
+      $("timerText").textContent = formatTime(state.session.remaining);
+      if (state.session.remaining <= 0) {
+        clearInterval(state.session.timerId);
+        finishSession(true);
+      }
+    }, 1000);
+  } else {
+    $("timerText").textContent = "No timer";
+  }
+
+  renderQuestion();
+}
+
+function renderHeader() {
+  const s = state.session;
+  const record = getCurrentRecord();
+  const categoryText = s.category === "mixed" ? "Mixed" :
+                       s.category === "wrong" ? "Missed" :
+                       s.category === "weakest" ? ("Weakest: " + weakestCategory(record)) :
+                       s.category;
+  $("sessionModePill").textContent = s.mode === "study" ? "Study" : s.mode === "exam" ? "Exam" : "Flashcards";
+  $("sessionCategoryPill").textContent = categoryText;
+  $("positionText").textContent = "Q " + (Math.min(s.index + 1, s.questions.length)) + " / " + s.questions.length;
+  $("progressFill").style.width = ((s.index / s.questions.length) * 100) + "%";
+}
+
+function renderQuestion() {
+  const s = state.session, q = s.questions[s.index];
+  s.locked = false;
+  renderHeader();
+  $("questionText").textContent = q.question;
+  $("feedbackWrap").innerHTML = "";
+  $("optionsWrap").innerHTML = "";
+  $("nextBtn").classList.add("hidden");
+
+  q.optionsView.forEach((opt, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = String.fromCharCode(65 + idx) + ". " + opt;
+    btn.addEventListener("click", () => answerQuestion(idx));
+    $("optionsWrap").appendChild(btn);
+  });
+}
+
+function answerQuestion(choice) {
+  const s = state.session;
+  const record = getCurrentRecord();
+  if (!s || s.locked || !record) return;
+  s.locked = true;
+
+  const q = s.questions[s.index];
+  const correct = choice === q.correctView;
+
+  record.answered += 1;
+  record.byCategory[q.category].answered += 1;
+
+  if (correct) {
+    s.score += 1;
+    record.correct += 1;
+    record.byCategory[q.category].correct += 1;
+    record.missedIds = record.missedIds.filter(id => id !== q._id);
+  } else {
+    if (!record.missedIds.includes(q._id)) record.missedIds.push(q._id);
+  }
+
+  s.answers.push({ id:q._id, category:q.category, selected:choice, correct });
+  saveState();
+  renderAll();
+
+  Array.from(document.querySelectorAll(".option")).forEach((btn, idx) => {
+    btn.disabled = true;
+    if (idx === q.correctView) btn.classList.add("correct");
+    if (idx === choice && idx !== q.correctView) btn.classList.add("incorrect");
+  });
+
+  if (s.mode === "study") {
+    const letter = String.fromCharCode(65 + q.correctView);
+    $("feedbackWrap").innerHTML =
+      '<div class="feedback ' + (correct ? 'good' : 'bad') + '"><strong>' +
+      (correct ? 'Correct.' : 'Incorrect.') + '</strong><br>Correct answer: <strong>' +
+      letter + '. ' + escapeHtml(q.optionsView[q.correctView]) + '</strong><br>' +
+      escapeHtml(q.explanation) + '</div>';
+  }
+
+  $("nextBtn").classList.remove("hidden");
+  $("nextBtn").textContent = s.index === s.questions.length - 1 ? "See Results" : "Next";
+}
+
+function nextQuestion() {
+  const s = state.session;
+  if (!s) return;
+  if (s.mode !== "flash" && !s.locked) return;
+
+  s.index += 1;
+  if (s.index >= s.questions.length) {
+    finishSession(false);
+    return;
+  }
+
+  if (s.mode === "flash") {
+    s.flashFront = true;
+    renderFlashcard();
+  } else {
+    renderQuestion();
+  }
+}
+
+function flipFlashcard() {
+  const s = state.session;
+  if (!s || s.mode !== "flash") return;
+  s.flashFront = !s.flashFront;
+  renderFlashcard();
+}
+
+function renderFlashcard() {
+  const s = state.session, q = s.questions[s.index];
+  renderHeader();
+  $("optionsWrap").innerHTML = "";
+  $("feedbackWrap").innerHTML = "";
+  $("nextBtn").classList.remove("hidden");
+  $("nextBtn").textContent = s.index === s.questions.length - 1 ? "Finish Cards" : "Next Card";
+
+  if (s.flashFront) {
+    $("questionText").textContent = q.question;
+    $("feedbackWrap").innerHTML = '<div class="feedback warn"><strong>Think it through first.</strong><br>Tap <strong>Flip Card</strong> to reveal the answer.</div>';
+  } else {
+    $("questionText").innerHTML = "<strong>Answer:</strong> " + String.fromCharCode(65 + q.correct) + ". " + escapeHtml(q.options[q.correct]);
+    $("feedbackWrap").innerHTML = '<div class="feedback good">' + escapeHtml(q.explanation) + '</div>';
+  }
+}
+
+function finishSession(fromTimer) {
+  const s = state.session;
+  const record = getCurrentRecord();
+  if (!s || !record) return;
+  if (s.timerId) clearInterval(s.timerId);
+
+  record.quizzes += 1;
+  const percent = Math.round((s.score / s.questions.length) * 100);
+  record.history.unshift({
+    when: new Date().toLocaleString(),
+    mode: s.mode,
+    score: s.score,
+    total: s.questions.length,
+    percent: percent
+  });
+  record.history = record.history.slice(0, 20);
+
+  saveState();
+  renderAll();
+  showSection("home");
+
+  const elapsed = formatTime(Math.round((Date.now() - s.startedAt) / 1000));
+  const missed = s.answers.filter(a => !a.correct);
+
+  let missedHtml = "";
+  if (!missed.length) {
+    missedHtml = "<p><strong>Perfect round.</strong> No missed questions this session.</p>";
+  } else {
+    missed.slice(0, 10).forEach(a => {
+      const q = s.questions.find(x => x._id === a.id);
+      missedHtml += '<div class="review-item"><strong>' + escapeHtml(q.category) + '</strong><br>' +
+                    escapeHtml(q.question) + '<br><span class="small">Correct answer: ' +
+                    String.fromCharCode(65 + q.correctView) + '. ' + escapeHtml(q.optionsView[q.correctView]) +
+                    '</span><br><span class="small">' + escapeHtml(q.explanation) + '</span></div>';
+    });
+  }
+
+  $("resultCard").classList.remove("hidden");
+  $("resultCard").innerHTML =
+    '<h2>' + (fromTimer ? "Time is up" : "Session complete") + '</h2>' +
+    '<div class="grid3">' +
+    '<div class="stat"><div class="muted">Score</div><div class="num">' + s.score + '/' + s.questions.length + '</div></div>' +
+    '<div class="stat"><div class="muted">Percent</div><div class="num">' + percent + '%</div></div>' +
+    '<div class="stat"><div class="muted">Elapsed</div><div class="num">' + elapsed + '</div></div>' +
+    '</div>' +
+    '<div class="feedback warn" style="margin-top:14px;"><strong>Best next move:</strong> Review missed questions, then do another 10–20 question round.</div>' +
+    '<h3 style="margin-top:16px;">Missed this round</h3>' + missedHtml;
+
+  state.session = null;
+}
+
+function quitSession() {
+  if (!confirm("Quit this session?")) return;
+  if (state.session && state.session.timerId) clearInterval(state.session.timerId);
+  state.session = null;
+  showSection("home");
+}
+
+function renderHome() {
+  if (!state.currentStudent) return;
+  $("currentStudentBox").textContent = displayName(state.currentStudent);
+}
+
+function renderProgress() {
+  const record = getCurrentRecord();
+  if (!record) return;
+
+  const answered = record.answered;
+  const accuracy = answered ? Math.round((record.correct / answered) * 100) : 0;
+  $("statAnswered").textContent = answered;
+  $("statAccuracy").textContent = accuracy + "%";
+  $("statMissed").textContent = record.missedIds.length;
+  $("dashboardHint").textContent = "Weakest category: " + weakestCategory(record) + ". Best workflow: Exam → Review Missed → Study weak area.";
+
+  const bars = $("categoryBars");
+  bars.innerHTML = "";
+  ["Steam","Motors","Electrical","Safety"].forEach(cat => {
+    const s = record.byCategory[cat];
+    const pct = s.answered ? Math.round((s.correct / s.answered) * 100) : 0;
+    const block = document.createElement("div");
+    block.style.marginBottom = "12px";
+    block.innerHTML =
+      '<div class="topline"><strong>' + cat + '</strong><span class="small">' +
+      s.correct + ' / ' + s.answered + ' correct (' + pct + '%)</span></div>' +
+      '<div class="bar"><div style="width:' + pct + '%"></div></div>';
+    bars.appendChild(block);
+  });
+}
+
+function renderTeacherDashboard() {
+  const names = Object.keys(state.students);
+  const wrap = $("teacherTableWrap");
+  if (!names.length) {
+    wrap.textContent = "No students yet.";
+    return;
+  }
+
+  const rows = names.sort().map(name => {
+    const r = state.students[name];
+    const acc = r.answered ? Math.round((r.correct / r.answered) * 100) : 0;
+    return '<tr>' +
+      '<td>' + escapeHtml(displayName(name)) + '</td>' +
+      '<td>' + r.answered + '</td>' +
+      '<td>' + acc + '%</td>' +
+      '<td>' + escapeHtml(weakestCategory(r)) + '</td>' +
+      '<td>' + r.missedIds.length + '</td>' +
+      '</tr>';
+  }).join("");
+
+  wrap.innerHTML =
+    '<table><thead><tr><th>Student</th><th>Answered</th><th>Accuracy</th><th>Weakest</th><th>Missed Saved</th></tr></thead><tbody>' +
+    rows + '</tbody></table>';
+}
+
+function renderReview() {
+  const record = getCurrentRecord();
+  if (!record) return;
+
+  const search = $("reviewSearch").value.toLowerCase().trim();
+  const ids = new Set(record.missedIds);
+  let items = allQuestions().filter(q => ids.has(q._id));
+
+  if (search) {
+    items = items.filter(q =>
+      q.question.toLowerCase().includes(search) ||
+      q.category.toLowerCase().includes(search) ||
+      q.options.some(opt => opt.toLowerCase().includes(search))
+    );
+  }
+
+  const box = $("missedReview");
+  if (!items.length) {
+    box.textContent = search ? "No missed questions match that search." : "No missed questions yet.";
+    return;
+  }
+
+  box.innerHTML = "";
+  items.forEach(q => {
+    const div = document.createElement("div");
+    div.className = "review-item";
+    div.innerHTML =
+      "<strong>" + escapeHtml(q.category) + "</strong><br>" +
+      escapeHtml(q.question) + "<br><span class='small'>Answer: " +
+      String.fromCharCode(65 + q.correct) + ". " + escapeHtml(q.options[q.correct]) +
+      "</span><br><span class='small'>" + escapeHtml(q.explanation) + "</span>";
+    box.appendChild(div);
+  });
+}
+
+function exportClassData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "maritime_classroom_data.json";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function renderAll() {
+  renderRecentStudents();
+  renderHome();
+  renderProgress();
+  renderTeacherDashboard();
+  renderReview();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+  loadState();
+  renderAll();
+
+  if (state.currentStudent) {
+    showSection("home");
+  } else {
+    showSection("student");
+  }
+
+  $("signInBtn").addEventListener("click", signInStudent);
+  $("studentName").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") signInStudent();
+  });
+  $("switchStudentBtn").addEventListener("click", switchStudent);
+
+  $("quickStudyBtn").addEventListener("click", () => startSession("study", "mixed"));
+  $("quickExamBtn").addEventListener("click", () => startSession("exam", "mixed"));
+  $("quickMissedBtn").addEventListener("click", () => startSession("study", "wrong"));
+  $("startBtn").addEventListener("click", () => startSession());
+  $("nextBtn").addEventListener("click", nextQuestion);
+  $("flipBtn").addEventListener("click", flipFlashcard);
+  $("quitBtn").addEventListener("click", quitSession);
+
+  $("tabHome").addEventListener("click", () => showSection("home"));
+  $("tabProgress").addEventListener("click", () => showSection("progress"));
+  $("tabTeacher").addEventListener("click", () => showSection("teacher"));
+  $("tabReview").addEventListener("click", () => showSection("review"));
+  $("reviewSearch").addEventListener("input", renderReview);
+  $("exportClassBtn").addEventListener("click", exportClassData);
+});
+</script>
+</body>
+</html>
